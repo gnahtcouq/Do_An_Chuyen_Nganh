@@ -20,7 +20,7 @@ module.exports = {
             timeType: {
                 type: Sequelize.STRING
             },
-            groomerId: {
+            staffId: {
                 type: Sequelize.INTEGER
             },
             createdAt: {

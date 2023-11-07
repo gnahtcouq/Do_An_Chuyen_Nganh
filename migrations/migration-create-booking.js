@@ -11,7 +11,7 @@ module.exports = {
             statusId: {
                 type: Sequelize.STRING
             },
-            groomerId: {
+            staffId: {
                 type: Sequelize.INTEGER
             },
             customerId: {
