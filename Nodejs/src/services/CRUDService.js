@@ -1,10 +1,11 @@
 import db from '../models/index'
 import bcrypt from 'bcryptjs'
 
+// Số lần lặp (cost factor) cho bcrypt, giúp tăng độ khó cho việc tìm kiếm rainbow table
 const salt = bcrypt.genSaltSync(10)
 
 let createNewUser = async (data) => {
-  return new Promise(async (resole, reject) => {
+  return new Promise(async (resolve, reject) => {
     try {
       let hashPasswordFromBcrypt = await hashUserPassword(data.password)
       await db.User.create({
@@ -18,7 +19,7 @@ let createNewUser = async (data) => {
         roleId: data.roleId
       })
 
-      resole('create a new user successfully')
+      resolve('create a new user successfully')
     } catch (error) {
       reject(error)
     }
@@ -78,7 +79,7 @@ let updateUserData = (data) => {
         await user.save()
         let allUsers = await db.User.findAll()
         resolve(allUsers)
-      } else resole()
+      } else resolve()
     } catch (error) {
       reject(error)
     }

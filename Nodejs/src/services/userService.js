@@ -192,7 +192,7 @@ let updateUserData = (data) => {
           message: 'The user is updated successfully'
         })
       } else
-        resole({
+        resolve({
           errCode: 1,
           errMessage: `The user isn't exist`
         })
