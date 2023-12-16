@@ -130,7 +130,8 @@ let createNewUser = (data) => {
           address: data.address,
           phonenumber: data.phonenumber,
           gender: data.gender,
-          roleId: data.roleId
+          roleId: data.roleId,
+          image: data.avatar
         })
 
         resolve({
@@ -188,6 +189,9 @@ let updateUserData = (data) => {
         user.phonenumber = data.phonenumber
         user.gender = data.gender
         user.roleId = data.roleId
+        if (data.avatar) {
+          user.image = data.avatar
+        }
 
         await user.save()
         // await db.User.save({
