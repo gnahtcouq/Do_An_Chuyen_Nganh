@@ -31,6 +31,59 @@ let getTopStaffHome = (limitInput) => {
   })
 }
 
+let getAllStaff = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let staffs = await db.User.findAll({
+        where: {roleId: 'R2'},
+        attributes: {
+          exclude: ['password', 'image']
+        }
+      })
+
+      resolve({
+        errCode: 0,
+        data: staffs
+      })
+    } catch (error) {
+      reject(error)
+    }
+  })
+}
+
+let saveDetailInfoStaff = (inputData) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (
+        !inputData.staffId ||
+        !inputData.contentHTML ||
+        !inputData.contentMarkdown
+      ) {
+        resolve({
+          errCode: 1,
+          errMessage: 'Missing required parameter'
+        })
+      } else {
+        await db.Markdown.create({
+          contentHTML: inputData.contentHTML,
+          contentMarkdown: inputData.contentMarkdown,
+          description: inputData.description,
+          staffId: inputData.staffId
+        })
+
+        resolve({
+          errCode: 0,
+          message: 'Save detail info staff success'
+        })
+      }
+    } catch (error) {
+      reject(error)
+    }
+  })
+}
+
 module.exports = {
-  getTopStaffHome: getTopStaffHome
+  getTopStaffHome: getTopStaffHome,
+  getAllStaff: getAllStaff,
+  saveDetailInfoStaff: saveDetailInfoStaff
 }

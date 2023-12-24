@@ -27,6 +27,9 @@ let initWebRoutes = (app) => {
 
   router.get('/api/top-staff-home', staffController.getTopStaffHome)
 
+  router.get('/api/get-all-staff', staffController.getAllStaff)
+  router.post('/api/save-info-staff', staffController.postInfoStaff)
+
   return app.use('/', router)
 }
 
