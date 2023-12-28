@@ -57,19 +57,34 @@ let saveDetailInfoStaff = (inputData) => {
       if (
         !inputData.staffId ||
         !inputData.contentHTML ||
-        !inputData.contentMarkdown
+        !inputData.contentMarkdown ||
+        !inputData.action
       ) {
         resolve({
           errCode: 1,
           errMessage: 'Missing required parameter'
         })
       } else {
-        await db.Markdown.create({
-          contentHTML: inputData.contentHTML,
-          contentMarkdown: inputData.contentMarkdown,
-          description: inputData.description,
-          staffId: inputData.staffId
-        })
+        if (inputData.action === 'CREATE') {
+          await db.Markdown.create({
+            contentHTML: inputData.contentHTML,
+            contentMarkdown: inputData.contentMarkdown,
+            description: inputData.description,
+            staffId: inputData.staffId
+          })
+        } else if (inputData.action === 'EDIT') {
+          let staffMarkdown = await db.Markdown.findOne({
+            where: {staffId: inputData.staffId},
+            raw: false
+          })
+
+          if (staffMarkdown) {
+            staffMarkdown.contentHTML = inputData.contentHTML
+            staffMarkdown.contentMarkdown = inputData.contentMarkdown
+            staffMarkdown.description = inputData.description
+            await staffMarkdown.save()
+          }
+        }
 
         resolve({
           errCode: 0,
