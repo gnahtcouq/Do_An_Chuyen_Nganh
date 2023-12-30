@@ -168,17 +168,17 @@ let bulkCreateSchedule = (data) => {
           raw: true
         })
 
-        // convert date to number
-        if (existingSchedule && existingSchedule.length > 0) {
-          existingSchedule.map((item) => {
-            item.date = new Date(item.date).getTime()
-            return item
-          })
-        }
+        // // convert date to number
+        // if (existingSchedule && existingSchedule.length > 0) {
+        //   existingSchedule.map((item) => {
+        //     item.date = new Date(item.date).getTime()
+        //     return item
+        //   })
+        // }
 
         // compare difference
         let toCreate = _.differenceWith(schedule, existingSchedule, (a, b) => {
-          return a.timeType === b.timeType && a.date === b.date
+          return a.timeType === b.timeType && +a.date === +b.date
         })
 
         // create new schedule
@@ -210,7 +210,16 @@ let getScheduleByDate = (staffId, date) => {
       } else {
         let schedule = await db.Schedule.findAll({
           where: {staffId: staffId, date: date},
-          attributes: ['timeType', 'date', 'staffId', 'maxNumber']
+          attributes: ['timeType', 'date', 'staffId', 'maxNumber'],
+          include: [
+            {
+              model: db.Allcode,
+              as: 'timeTypeData',
+              attributes: ['valueEn', 'valueVi']
+            }
+          ],
+          raw: true,
+          nest: true
         })
 
         if (!schedule) schedule = []
