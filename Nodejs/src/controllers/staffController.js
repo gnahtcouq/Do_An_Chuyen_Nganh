@@ -67,10 +67,27 @@ let bulkCreateSchedule = async (req, res) => {
   }
 }
 
+let getScheduleByDate = async (req, res) => {
+  try {
+    let schedule = await staffService.getScheduleByDate(
+      req.query.staffId,
+      req.query.date
+    )
+    return res.status(200).json(schedule)
+  } catch (error) {
+    console.log(error)
+    return res.status(200).json({
+      errCode: -1,
+      message: 'Error from server'
+    })
+  }
+}
+
 module.exports = {
   getTopStaffHome: getTopStaffHome,
   getAllStaff: getAllStaff,
   postInfoStaff: postInfoStaff,
   getDetailStaffById: getDetailStaffById,
-  bulkCreateSchedule: bulkCreateSchedule
+  bulkCreateSchedule: bulkCreateSchedule,
+  getScheduleByDate: getScheduleByDate
 }

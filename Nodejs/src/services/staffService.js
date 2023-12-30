@@ -199,10 +199,38 @@ let bulkCreateSchedule = (data) => {
   })
 }
 
+let getScheduleByDate = (staffId, date) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!staffId || !date) {
+        resolve({
+          errCode: 1,
+          errMessage: 'Missing required parameter'
+        })
+      } else {
+        let schedule = await db.Schedule.findAll({
+          where: {staffId: staffId, date: date},
+          attributes: ['timeType', 'date', 'staffId', 'maxNumber']
+        })
+
+        if (!schedule) schedule = []
+
+        resolve({
+          errCode: 0,
+          data: schedule
+        })
+      }
+    } catch (error) {
+      reject(error)
+    }
+  })
+}
+
 module.exports = {
   getTopStaffHome: getTopStaffHome,
   getAllStaff: getAllStaff,
   saveDetailInfoStaff: saveDetailInfoStaff,
   getDetailStaffById: getDetailStaffById,
-  bulkCreateSchedule: bulkCreateSchedule
+  bulkCreateSchedule: bulkCreateSchedule,
+  getScheduleByDate: getScheduleByDate
 }

@@ -26,8 +26,11 @@ let initWebRoutes = (app) => {
   router.get('/api/get-all-staff', staffController.getAllStaff)
   router.post('/api/save-info-staff', staffController.postInfoStaff)
   router.get('/api/get-detail-staff-by-id', staffController.getDetailStaffById)
-
   router.post('/api/bulk-create-schedule', staffController.bulkCreateSchedule)
+  router.get(
+    '/api/get-schedule-staff-by-date',
+    staffController.getScheduleByDate
+  )
 
   return app.use('/', router)
 }
