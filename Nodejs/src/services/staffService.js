@@ -62,13 +62,17 @@ let saveDetailInfoStaff = (inputData) => {
         !inputData.staffId ||
         !inputData.contentHTML ||
         !inputData.contentMarkdown ||
-        !inputData.action
+        !inputData.action ||
+        !inputData.selectedPrice ||
+        !inputData.selectedPayment ||
+        !inputData.note
       ) {
         resolve({
           errCode: 1,
           errMessage: 'Missing required parameter'
         })
       } else {
+        // upsert to Markdown table
         if (inputData.action === 'CREATE') {
           await db.Markdown.create({
             contentHTML: inputData.contentHTML,
@@ -81,6 +85,29 @@ let saveDetailInfoStaff = (inputData) => {
             where: {staffId: inputData.staffId},
             raw: false
           })
+
+          // upsert to staff_info table
+          let staffInfo = await db.Staff_Info.findOne({
+            where: {staffId: inputData.staffId},
+            raw: false
+          })
+
+          if (staffInfo) {
+            // update
+            staffInfo.staffId = inputData.staffId
+            staffInfo.priceId = inputData.selectedPrice
+            staffInfo.paymentId = inputData.selectedPayment
+            staffInfo.note = inputData.note
+            await staffInfo.save()
+          } else {
+            // create
+            await db.Staff_Info.create({
+              staffId: inputData.staffId,
+              priceId: inputData.selectedPrice,
+              paymentId: inputData.selectedPayment,
+              note: inputData.note
+            })
+          }
 
           if (staffMarkdown) {
             staffMarkdown.contentHTML = inputData.contentHTML
