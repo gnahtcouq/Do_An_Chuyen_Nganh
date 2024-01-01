@@ -146,6 +146,24 @@ let getDetailStaffById = (inputId) => {
             {
               model: db.Markdown,
               attributes: ['description', 'contentHTML', 'contentMarkdown']
+            },
+            {
+              model: db.Staff_Info,
+              attributes: {
+                exclude: ['id', 'staffId']
+              },
+              include: [
+                {
+                  model: db.Allcode,
+                  as: 'priceTypeData',
+                  attributes: ['valueEn', 'valueVi']
+                },
+                {
+                  model: db.Allcode,
+                  as: 'paymentTypeData',
+                  attributes: ['valueEn', 'valueVi']
+                }
+              ]
             }
           ],
           raw: false,
