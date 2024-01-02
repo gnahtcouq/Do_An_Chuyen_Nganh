@@ -35,7 +35,7 @@ let postBookAppointment = (data) => {
 
         resolve({
           errCode: 0,
-          message: 'OK'
+          message: 'Save the booking successfully!'
         })
       }
     } catch (error) {
