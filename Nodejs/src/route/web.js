@@ -35,6 +35,10 @@ let initWebRoutes = (app) => {
     '/api/get-extra-info-staff-by-id',
     staffController.getExtraInfoStaffById
   )
+  router.get(
+    '/api/get-profile-staff-by-id',
+    staffController.getProfileStaffById
+  )
 
   return app.use('/', router)
 }

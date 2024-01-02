@@ -323,6 +323,65 @@ let getExtraInfoStaffById = (idInput) => {
   })
 }
 
+let getProfileStaffById = (inputId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!inputId) {
+        resolve({
+          errCode: 1,
+          errMessage: 'Missing required parameter'
+        })
+      } else {
+        let data = await db.User.findOne({
+          where: {id: inputId},
+          attributes: {
+            exclude: ['password']
+          },
+          include: [
+            {
+              model: db.Markdown,
+              attributes: ['description', 'contentHTML', 'contentMarkdown']
+            },
+            {
+              model: db.Staff_Info,
+              attributes: {
+                exclude: ['id', 'staffId']
+              },
+              include: [
+                {
+                  model: db.Allcode,
+                  as: 'priceTypeData',
+                  attributes: ['valueEn', 'valueVi']
+                },
+                {
+                  model: db.Allcode,
+                  as: 'paymentTypeData',
+                  attributes: ['valueEn', 'valueVi']
+                }
+              ]
+            }
+          ],
+          raw: false,
+          nest: true
+        })
+
+        if (data && data.image) {
+          data.image = new Buffer(data.image, 'base64').toString('binary')
+        }
+
+        if (!data) data = {}
+
+        resolve({
+          errCode: 0,
+          data: data
+        })
+      }
+    } catch (error) {
+      reject(error)
+    }
+  })
+}
+
 module.exports = {
   getTopStaffHome: getTopStaffHome,
   getAllStaff: getAllStaff,
@@ -330,5 +389,6 @@ module.exports = {
   getDetailStaffById: getDetailStaffById,
   bulkCreateSchedule: bulkCreateSchedule,
   getScheduleByDate: getScheduleByDate,
-  getExtraInfoStaffById: getExtraInfoStaffById
+  getExtraInfoStaffById: getExtraInfoStaffById,
+  getProfileStaffById: getProfileStaffById
 }

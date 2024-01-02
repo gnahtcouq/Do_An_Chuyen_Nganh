@@ -96,6 +96,19 @@ let getExtraInfoStaffById = async (req, res) => {
   }
 }
 
+let getProfileStaffById = async (req, res) => {
+  try {
+    let info = await staffService.getProfileStaffById(req.query.staffId)
+    return res.status(200).json(info)
+  } catch (error) {
+    console.log(error)
+    return res.status(200).json({
+      errCode: -1,
+      message: 'Error from server'
+    })
+  }
+}
+
 module.exports = {
   getTopStaffHome: getTopStaffHome,
   getAllStaff: getAllStaff,
@@ -103,5 +116,6 @@ module.exports = {
   getDetailStaffById: getDetailStaffById,
   bulkCreateSchedule: bulkCreateSchedule,
   getScheduleByDate: getScheduleByDate,
-  getExtraInfoStaffById: getExtraInfoStaffById
+  getExtraInfoStaffById: getExtraInfoStaffById,
+  getProfileStaffById: getProfileStaffById
 }
