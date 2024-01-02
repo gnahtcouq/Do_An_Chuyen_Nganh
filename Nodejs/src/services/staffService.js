@@ -280,11 +280,55 @@ let getScheduleByDate = (staffId, date) => {
   })
 }
 
+let getExtraInfoStaffById = (idInput) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!idInput) {
+        resolve({
+          errCode: 1,
+          errMessage: 'Missing required parameter'
+        })
+      } else {
+        let data = await db.Staff_Info.findOne({
+          where: {staffId: idInput},
+          attributes: {
+            exclude: ['id', 'staffId']
+          },
+          include: [
+            {
+              model: db.Allcode,
+              as: 'priceTypeData',
+              attributes: ['valueEn', 'valueVi']
+            },
+            {
+              model: db.Allcode,
+              as: 'paymentTypeData',
+              attributes: ['valueEn', 'valueVi']
+            }
+          ],
+          raw: false,
+          nest: true
+        })
+
+        if (!data) data = {}
+
+        resolve({
+          errCode: 0,
+          data: data
+        })
+      }
+    } catch (error) {
+      reject(error)
+    }
+  })
+}
+
 module.exports = {
   getTopStaffHome: getTopStaffHome,
   getAllStaff: getAllStaff,
   saveDetailInfoStaff: saveDetailInfoStaff,
   getDetailStaffById: getDetailStaffById,
   bulkCreateSchedule: bulkCreateSchedule,
-  getScheduleByDate: getScheduleByDate
+  getScheduleByDate: getScheduleByDate,
+  getExtraInfoStaffById: getExtraInfoStaffById
 }
