@@ -1,6 +1,12 @@
 import db from '../models/index'
 require('dotenv').config()
 import emailService from './emailService'
+import {v4 as uuidv4} from 'uuid'
+
+let buildUrlEmail = (staffId, token) => {
+  let result = `${process.env.URL_REACT}/verify-booking?token=${token}&staffId=${staffId}`
+  return result
+}
 
 let postBookAppointment = (data) => {
   return new Promise(async (resolve, reject) => {
@@ -17,13 +23,15 @@ let postBookAppointment = (data) => {
           errMessage: 'Missing required parameter!'
         })
       } else {
+        let token = uuidv4()
+
         await emailService.sendEmail({
           receiverEmail: data.email,
           customerName: data.fullName,
           time: data.timeString,
           staffName: data.staffName,
           language: data.language,
-          redirectLink: 'https://github.com/gnahtcouq'
+          redirectLink: buildUrlEmail(data.staffId, token)
         })
 
         let user = await db.User.findOrCreate({
@@ -44,7 +52,8 @@ let postBookAppointment = (data) => {
               staffId: data.staffId,
               customerId: user[0].id,
               date: data.date,
-              timeType: data.timeType
+              timeType: data.timeType,
+              token: token
             }
           })
         }
@@ -60,6 +69,45 @@ let postBookAppointment = (data) => {
   })
 }
 
+let postVerifyBookAppointment = (data) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!data.staffId || !data.token) {
+        resolve({
+          errCode: 1,
+          errMessage: 'Missing required parameter!'
+        })
+      } else {
+        let booking = await db.Booking.findOne({
+          where: {staffId: data.staffId, token: data.token, statusId: 'S1'},
+          raw: false
+        })
+
+        if (booking) {
+          await db.Booking.update(
+            {statusId: 'S2'},
+            {
+              where: {staffId: data.staffId, token: data.token}
+            }
+          )
+          resolve({
+            errCode: 0,
+            message: 'Update the booking successfully!'
+          })
+        } else {
+          resolve({
+            errCode: 2,
+            errMessage: 'The booking request is not found!'
+          })
+        }
+      }
+    } catch (error) {
+      reject(error)
+    }
+  })
+}
+
 module.exports = {
-  postBookAppointment: postBookAppointment
+  postBookAppointment: postBookAppointment,
+  postVerifyBookAppointment: postVerifyBookAppointment
 }
