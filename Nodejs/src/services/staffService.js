@@ -261,6 +261,11 @@ let getScheduleByDate = (staffId, date) => {
               model: db.Allcode,
               as: 'timeTypeData',
               attributes: ['valueEn', 'valueVi']
+            },
+            {
+              model: db.User,
+              as: 'staffData',
+              attributes: ['firstName', 'lastName']
             }
           ],
           raw: true,

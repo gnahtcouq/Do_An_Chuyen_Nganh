@@ -1,15 +1,31 @@
 import db from '../models/index'
 require('dotenv').config()
+import emailService from './emailService'
 
 let postBookAppointment = (data) => {
   return new Promise(async (resolve, reject) => {
     try {
-      if (!data.email || !data.staffId || !data.timeType || !data.date) {
+      if (
+        !data.email ||
+        !data.staffId ||
+        !data.timeType ||
+        !data.date ||
+        !data.fullName
+      ) {
         resolve({
           errCode: 1,
           errMessage: 'Missing required parameter!'
         })
       } else {
+        await emailService.sendEmail({
+          receiverEmail: data.email,
+          customerName: data.fullName,
+          time: data.timeString,
+          staffName: data.staffName,
+          language: data.language,
+          redirectLink: 'https://github.com/gnahtcouq'
+        })
+
         let user = await db.User.findOrCreate({
           where: {email: data.email},
           defaults: {
@@ -18,7 +34,7 @@ let postBookAppointment = (data) => {
           }
         })
 
-        console.log('user', user[0])
+        // console.log('user', user[0])
 
         if (user && user[0]) {
           await db.Booking.findOrCreate({
