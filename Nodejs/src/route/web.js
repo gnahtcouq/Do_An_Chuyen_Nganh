@@ -40,6 +40,10 @@ let initWebRoutes = (app) => {
     '/api/get-profile-staff-by-id',
     staffController.getProfileStaffById
   )
+  router.get(
+    '/api/get-list-customer-for-staff',
+    staffController.getListCustomerForStaff
+  )
 
   router.post(
     '/api/customer-book-appointment',

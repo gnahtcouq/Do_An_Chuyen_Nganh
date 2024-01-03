@@ -387,6 +387,50 @@ let getProfileStaffById = (inputId) => {
   })
 }
 
+let getListCustomerForStaff = (staffId, date) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!staffId || !date) {
+        resolve({
+          errCode: 1,
+          errMessage: 'Missing required parameter'
+        })
+      } else {
+        let data = await db.Booking.findAll({
+          where: {
+            statusId: 'S2',
+            staffId: staffId,
+            date: date
+          },
+          include: [
+            {
+              model: db.User,
+              as: 'customerData',
+              attributes: ['email', 'firstName', 'address', 'gender'],
+              include: [
+                {
+                  model: db.Allcode,
+                  as: 'genderData',
+                  attributes: ['valueEn', 'valueVi']
+                }
+              ]
+            }
+          ],
+          raw: false,
+          nest: true
+        })
+
+        resolve({
+          errCode: 0,
+          data: data
+        })
+      }
+    } catch (error) {
+      reject(error)
+    }
+  })
+}
+
 module.exports = {
   getTopStaffHome: getTopStaffHome,
   getAllStaff: getAllStaff,
@@ -395,5 +439,6 @@ module.exports = {
   bulkCreateSchedule: bulkCreateSchedule,
   getScheduleByDate: getScheduleByDate,
   getExtraInfoStaffById: getExtraInfoStaffById,
-  getProfileStaffById: getProfileStaffById
+  getProfileStaffById: getProfileStaffById,
+  getListCustomerForStaff: getListCustomerForStaff
 }
