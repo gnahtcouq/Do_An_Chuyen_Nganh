@@ -1,6 +1,7 @@
 import db from '../models/index'
 import _ from 'lodash'
 require('dotenv').config()
+import emailService from './emailService'
 
 const MAX_NUMBER_SCHEDULE = process.env.MAX_NUMBER_SCHEDULE
 
@@ -190,7 +191,7 @@ let getDetailStaffById = (inputId) => {
 let bulkCreateSchedule = (data) => {
   return new Promise(async (resolve, reject) => {
     try {
-      if (!data.arrSchedule || !data.staffId || !data.formatedDate) {
+      if (!data.arrSchedule || !data.staffId || !data.formattedDate) {
         resolve({
           errCode: 1,
           errMessage: 'Missing required parameter'
@@ -208,7 +209,7 @@ let bulkCreateSchedule = (data) => {
 
         // get all existing schedule
         let existingSchedule = await db.Schedule.findAll({
-          where: {staffId: data.staffId, date: data.formatedDate},
+          where: {staffId: data.staffId, date: data.formattedDate},
           attributes: ['timeType', 'date', 'staffId', 'maxNumber'],
           raw: true
         })
@@ -414,6 +415,11 @@ let getListCustomerForStaff = (staffId, date) => {
                   attributes: ['valueEn', 'valueVi']
                 }
               ]
+            },
+            {
+              model: db.Allcode,
+              as: 'timeTypeDataCustomer',
+              attributes: ['valueEn', 'valueVi']
             }
           ],
           raw: false,
@@ -431,6 +437,51 @@ let getListCustomerForStaff = (staffId, date) => {
   })
 }
 
+let sendRemedy = (data) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (
+        !data.email ||
+        !data.staffId ||
+        !data.customerId ||
+        !data.timeType ||
+        !data.imgBase64
+      ) {
+        resolve({
+          errCode: 1,
+          errMessage: 'Missing required parameter'
+        })
+      } else {
+        // update customer status
+        let appointment = await db.Booking.findOne({
+          where: {
+            staffId: data.staffId,
+            customerId: data.customerId,
+            timeType: data.timeType,
+            statusId: 'S2'
+          },
+          raw: false
+        })
+
+        if (appointment) {
+          appointment.statusId = 'S3'
+          await appointment.save()
+        }
+
+        // send email remedy
+        await emailService.sendAttachmentEmail(data)
+
+        resolve({
+          errCode: 0,
+          errMessage: 'OK'
+        })
+      }
+    } catch (error) {
+      reject(error)
+    }
+  })
+}
+
 module.exports = {
   getTopStaffHome: getTopStaffHome,
   getAllStaff: getAllStaff,
@@ -440,5 +491,6 @@ module.exports = {
   getScheduleByDate: getScheduleByDate,
   getExtraInfoStaffById: getExtraInfoStaffById,
   getProfileStaffById: getProfileStaffById,
-  getListCustomerForStaff: getListCustomerForStaff
+  getListCustomerForStaff: getListCustomerForStaff,
+  sendRemedy: sendRemedy
 }

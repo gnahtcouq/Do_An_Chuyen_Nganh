@@ -44,6 +44,7 @@ let initWebRoutes = (app) => {
     '/api/get-list-customer-for-staff',
     staffController.getListCustomerForStaff
   )
+  router.post('/api/send-remedy', staffController.sendRemedy)
 
   router.post(
     '/api/customer-book-appointment',

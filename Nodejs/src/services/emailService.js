@@ -33,8 +33,7 @@ let getBodyHTMLEmail = (dataSend) => {
         <p><b>- Nhân viên: ${dataSend.staffName}</b></p>
         <p>Hãy nhấp <a href=${dataSend.redirectLink} target="_blank">vào đây</a> để xác nhận và hoàn tất thủ tục đặt lịch.</p>
         <p>Cảm ơn bạn đã sử dụng dịch vụ của Pet Cưng!</p>
-        <i>Quý khách vui lòng không phản hồi về địa chỉ email này vì chúng tôi sẽ không nhận được. Để gửi phản hồi quý khách vui lòng gửi vào email contact@petcung.tech. Pet Cưng chỉ tiếp nhận và xử lí các yêu cầu từ cuộc gọi và email của quý khách trong giờ làm việc.
-        Xin cảm ơn quý khách!</i>
+        <i>Quý khách vui lòng không phản hồi về địa chỉ email này vì chúng tôi sẽ không nhận được. Để gửi phản hồi quý khách vui lòng gửi vào email contact@petcung.tech. Pet Cưng chỉ tiếp nhận và xử lí các yêu cầu từ cuộc gọi và email của quý khách trong giờ làm việc. Xin cảm ơn quý khách!</i>
         `
   }
 
@@ -48,13 +47,61 @@ let getBodyHTMLEmail = (dataSend) => {
         <p>Please click <a href=${dataSend.redirectLink} target="_blank">here</a> to confirm and complete the booking process.</p>
         <p>Thank you for using Pet Cưng's services!</p>
         <i>Dear customer, please do not reply to this email address as we will not receive it. To provide feedback, please send an email to contact@petcung.tech. Pet Cưng only accepts and processes requests from your calls and emails during working hours. Thank you!</i>
-    
         `
   }
 
   return result
 }
 
+let sendAttachmentEmail = async (dataSend) => {
+  let transporter = nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false, // `true` for port 465, `false` for all other ports
+    auth: {
+      user: process.env.EMAIL_APP,
+      pass: process.env.EMAIL_APP_PASSWORD
+    }
+  })
+
+  let info = await transporter.sendMail({
+    from: '"Pet Cưng" <comehere.thang@gmail.com>', // sender address
+    to: dataSend.email, // list of receivers
+    subject: 'Thông tin hoá đơn tại Pet Cưng', // Subject line
+    html: getBodyHTMLEmailRemedy(dataSend), // html body,
+    attachments: [
+      {
+        filename: `remedy-${dataSend.customerId}-${new Date().getTime()}.png`,
+        content: dataSend.imgBase64.split('base64,')[1],
+        encoding: 'base64'
+      }
+    ]
+  })
+}
+
+let getBodyHTMLEmailRemedy = (dataSend) => {
+  let result = ''
+  if (dataSend.language === 'vi') {
+    result = `
+        <p>Xin chào, ${dataSend.customerName}!</p>
+        <p>Thông tin hoá đơn được gửi trong file đính kèm bên dưới.</p>
+        <p>Cảm ơn bạn đã sử dụng dịch vụ của Pet Cưng!</p>
+        <i>Quý khách vui lòng không phản hồi về địa chỉ email này vì chúng tôi sẽ không nhận được. Để gửi phản hồi quý khách vui lòng gửi vào email contact@petcung.tech. Pet Cưng chỉ tiếp nhận và xử lí các yêu cầu từ cuộc gọi và email của quý khách trong giờ làm việc. Xin cảm ơn quý khách!</i>
+        `
+  }
+  if (dataSend.language === 'en') {
+    result = `
+        <p>Hi, ${dataSend.customerName}!</p>
+        <p>You have successfully booked an appointment at Pet Cưng</p>
+        <p>The invoice information has been sent in the attached file below.</p>
+        <p>Thank you for using Pet Cưng's services!</p>
+        <i>Please do not reply to this email address as we will not receive it. To provide feedback, please send an email to contact@petcung.tech. Pet Cưng only accepts and processes requests from your calls and emails during working hours. Thank you!</i>
+        `
+  }
+  return result
+}
+
 module.exports = {
-  sendEmail: sendEmail
+  sendEmail: sendEmail,
+  sendAttachmentEmail: sendAttachmentEmail
 }

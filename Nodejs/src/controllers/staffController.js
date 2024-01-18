@@ -125,6 +125,19 @@ let getListCustomerForStaff = async (req, res) => {
   }
 }
 
+let sendRemedy = async (req, res) => {
+  try {
+    let info = await staffService.sendRemedy(req.body)
+    return res.status(200).json(info)
+  } catch (error) {
+    console.log(error)
+    return res.status(200).json({
+      errCode: -1,
+      message: 'Error from server'
+    })
+  }
+}
+
 module.exports = {
   getTopStaffHome: getTopStaffHome,
   getAllStaff: getAllStaff,
@@ -134,5 +147,6 @@ module.exports = {
   getScheduleByDate: getScheduleByDate,
   getExtraInfoStaffById: getExtraInfoStaffById,
   getProfileStaffById: getProfileStaffById,
-  getListCustomerForStaff: getListCustomerForStaff
+  getListCustomerForStaff: getListCustomerForStaff,
+  sendRemedy: sendRemedy
 }
